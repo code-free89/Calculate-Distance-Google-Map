@@ -1,0 +1,10 @@
+.sign-up-footer {
+    color: white;
+    background: #0000ffcc;
+    height: 100%;
+    font-size: xx-large;
+    font-weight: 700;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    width: inherit;
+}
