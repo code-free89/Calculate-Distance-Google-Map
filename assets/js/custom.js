@@ -12,7 +12,7 @@ var ppk_price = 2.5;
 $(document).ready(function () {
     $('#timepicker1').timepicker();
     $('[data-toggle="tooltip"]').tooltip();
-    var height = $(window).height() - 100;
+    var height = $(window).height() - 160;
     var width = $(window).width() / 3 * 2;
     $('#map').css("width", width);
     $('#map').css("height", height);
@@ -67,6 +67,12 @@ $(document).ready(function () {
         $('.seasonal-extra').val(seasonal_extra);
         $('.seasonal-discount').val(seasonal_discount);
     });
+    var start = $('#searchInput_pickup').val();
+    var end = $('#searchInput_delivery').val();
+    directionsDisplay.setMap(map);
+    drawPath(directionsService, directionsDisplay, start, end);
+
+    CalculatedRecommededDistance();
 });
 
 function initMap() {
@@ -117,6 +123,13 @@ function initMap() {
         bindDataToForm_pickup(place.formatted_address,place.geometry.location.lat(),place.geometry.location.lng());
         infowindow_pickup.setContent(place.formatted_address);
         infowindow_pickup.open(map, marker_pickup);
+        
+        var start = $('#searchInput_pickup').val();
+        var end = $('#searchInput_delivery').val();
+        directionsDisplay.setMap(map);
+        drawPath(directionsService, directionsDisplay, start, end);
+
+        CalculatedRecommededDistance();
     });
     autocomplete_delivery.bindTo('bounds', map);
     var infowindow_delivery = new google.maps.InfoWindow();
@@ -143,6 +156,13 @@ function initMap() {
         bindDataToForm_delivery(place.formatted_address,place.geometry.location.lat(),place.geometry.location.lng());
         infowindow_delivery.setContent(place.formatted_address);
         infowindow_delivery.open(map, marker_delivery);
+        
+        var start = $('#searchInput_pickup').val();
+        var end = $('#searchInput_delivery').val();
+        directionsDisplay.setMap(map);
+        drawPath(directionsService, directionsDisplay, start, end);
+
+        CalculatedRecommededDistance();
     });
     // this function will work on marker move event into map 
     google.maps.event.addListener(marker_pickup, 'dragend', function() {
@@ -315,6 +335,11 @@ function CalculateDistanceforAllAlternativeRoutes() {
         //Display distance having highest value.
         var resultDistance = Math.round(maxDistance[routes.length - 1]);
         $('#max-distance').text(resultDistance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "km");
+        if(numberOfCountries > 0) {
+            $('#Cross-border').show();
+        } else {
+            $('#Cross-border').hide();
+        }
         calculatePrice(resultDistance, numberOfCountries);
     });
 }
@@ -334,15 +359,6 @@ function drawPath(directionsService, directionsDisplay,start,end) {
             window.alert('Problem in showing direction due to ' + status);
         }
     });
-}
-
-function calculate() {
-    var start = $('#searchInput_pickup').val();
-    var end = $('#searchInput_delivery').val();
-    directionsDisplay.setMap(map);
-    drawPath(directionsService, directionsDisplay, start, end);
-
-    CalculatedRecommededDistance();
 }
 
 function calculatePrice(resultDistance, numberOfCountries) {
