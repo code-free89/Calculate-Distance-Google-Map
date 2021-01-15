@@ -10,6 +10,7 @@ var seasonal_discount = 0;
 var vehicle_type = 0;
 var ppk_price = 2.5;
 $(document).ready(function () {
+    $('#timepicker1').timepicker();
     $('[data-toggle="tooltip"]').tooltip();
     var height = $(window).height() - 100;
     var width = $(window).width() / 3 * 2;
@@ -351,7 +352,7 @@ function calculatePrice(resultDistance, numberOfCountries) {
     total_price += resultDistance * ppk_price;
     console.log(total_price);
     // total_price += numberOfCountries * border_price;
-    total_price += parseInt(border_price);
+    if(numberOfCountries > 1) {total_price += parseInt(border_price);}
     console.log(total_price);
     // if(vehicle_type == 0) {total_price += resultDistance * trailer_price;}
     // else if(vehicle_type == 1) {total_price += resultDistance * reefer_price;}
