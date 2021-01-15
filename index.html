@@ -27,7 +27,7 @@
         <div class="col-4">
             <div class="row mx-5">
                 <span class="h3 font-weight-bold ml-1 mt-5 col-12">Pick up</span>
-                <input id="searchInput_pickup" class="input-controls element-border pac-target-input w-100" type="text" placeholder="Dubai - United Arab Emirates">
+                <input id="searchInput_pickup" class="input-controls element-border pac-target-input w-100" type="text" value="Dubai - United Arab Emirates">
                 <div class="input-group pt-4 w-50">
                     <input type="text" class="form-control start-date element-border">
                     <div class="input-group-append">
@@ -39,7 +39,7 @@
             </div>
             <div class="row mx-5">
                 <span class="h3 font-weight-bold ml-1 mt-5 col-12">Delivery</span>
-                <input id="searchInput_delivery" class="input-controls element-border pac-target-input w-100" type="text" placeholder="Riyadh Saudi Arabia">
+                <input id="searchInput_delivery" class="input-controls element-border pac-target-input w-100" type="text" value="Riyadh 11564, Saudi Arabia">
                 <div class="input-group pt-4 w-50">
                     <input type="text" class="form-control end-date element-border">
                     <div class="input-group-append">
@@ -56,9 +56,8 @@
             <div class="row mx-5">
                 <span class="h3 font-weight-bold ml-1 mt-5 col-12">Truck Type</span>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-vehicle btn-vehicle-selected">Trailer</button>
+                    <button type="button" class="btn btn-vehicle btn-vehicle-selected vehicle-trailer">Trailer</button>
                     <button type="button" class="btn btn-vehicle">Reefer</button>
-                    <button type="button" class="btn btn-vehicle">Light Truck</button>
                 </div>
             </div>
             <div class="row mx-5">
@@ -92,14 +91,21 @@
                         <div class="col-12 px-5 d-flex">
                             <div class="h4 col-8 text-left">Price per Km</div> 
                             <div class="col-4 d-flex align-items-center">
-                                <input type="text" class="text-input text-center mr-3 union-price" placeholder="2.5" style="max-width: 60px;">
+                                <input type="text" class="text-input text-center mr-3 union-price" value="2.5" style="max-width: 60px;">
+                                <span class="h6 text-muted mb-0">AED</span>
+                            </div>
+                        </div>
+                        <div class="col-12 px-5 d-flex pt-3">
+                            <div class="h4 col-8 text-left">Saudi Price per Km</div> 
+                            <div class="col-4 d-flex align-items-center">
+                                <input type="text" class="text-input text-center mr-3 saudi-union-price" value="1.5" style="max-width: 60px;">
                                 <span class="h6 text-muted mb-0">AED</span>
                             </div>
                         </div>
                         <div class="col-12 px-5 d-flex pt-3">
                             <div class="h4 col-8 text-left">Cross-border</div> 
                             <div class="col-4 d-flex align-items-center">
-                                <input type="text" class="text-input text-center mr-3 border-price" placeholder="200" style="max-width: 60px;">
+                                <input type="text" class="text-input text-center mr-3 border-price" value="200" style="max-width: 60px;">
                                 <span class="h6 text-muted mb-0">AED</span>
                             </div>
                         </div>
@@ -109,7 +115,7 @@
                                 <span class="h5 text-right text-muted pt-1">Trailer</span>
                             </div>
                             <div class="col-4 d-flex align-items-center">
-                                <input type="text" class="text-input text-center mr-3 trailer-price" placeholder="2.5" style="max-width: 60px;">
+                                <input type="text" class="text-input text-center mr-3 trailer-price" value="2.5" style="max-width: 60px;">
                                 <span class="h6 text-muted mb-0">AED</span>
                             </div>
                         </div>
@@ -118,29 +124,29 @@
                                 <span class="h5 text-muted pt-1">Reefer</span>
                             </div>
                             <div class="col-4 d-flex align-items-center">
-                                <input type="text" class="text-input text-center mr-3 reefer-price" placeholder="2.5" style="max-width: 60px;">
+                                <input type="text" class="text-input text-center mr-3 reefer-price" value="2.5" style="max-width: 60px;">
                                 <span class="h6 text-muted mb-0">AED</span>
                             </div>
                         </div>
                         <div class="col-12 px-5 d-flex pt-3">
                             <div class="h4 col-8 text-left">Seasonal extras</div> 
                             <div class="col-4 d-flex align-items-center">
-                                <input type="text" class="text-input text-center mr-3 seasonal-extra" placeholder="0" style="max-width: 60px;">
+                                <input type="text" class="text-input text-center mr-3 seasonal-extra" value="0" style="max-width: 60px;">
                                 <span class="h6 text-muted mb-0">%</span>
                             </div>
                         </div>
                         <div class="col-12 px-5 d-flex pt-3">
                             <div class="h4 col-8 text-left">Seasonal Discount</div> 
                             <div class="col-4 d-flex align-items-center">
-                                <input type="text" class="text-input text-center mr-3 seasonal-discount" placeholder="0" style="max-width: 60px;">
+                                <input type="text" class="text-input text-center mr-3 seasonal-discount" value="0" style="max-width: 60px;">
                                 <span class="h6 text-muted mb-0">%</span>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary"
+                        <button type="button" class="btn btn-secondary cancel"
                                 data-dismiss="modal">Cancel</button>
-                        <button class="btn btn-primary leave" data-dismiss="modal">Save Settings</button>
+                        <button class="btn btn-primary save" data-dismiss="modal">Save Settings</button>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -149,7 +155,7 @@
     </div>
     <footer class="row mx-0">
         <div class="col-2 d-flex align-items-center flex-wrap">
-            <span class="h3 font-weight-bold col-12" id="max-distance">1,057km</span>
+            <span class="h3 font-weight-bold col-12 w-100" id="max-distance">1,057km</span>
             <h5 class="text-muted col-12">Distance</h4>
         </div>
         <div class="col-2 d-flex align-items-center">
@@ -162,7 +168,7 @@
             </a>
         </div>
         <div class="col-2 d-flex align-items-center flex-wrap">
-            <div class="h3 font-weight-bold total-price">AED2,114</div>
+            <div class="h3 font-weight-bold total-price w-100">AED2,114</div>
             <h5 class="text-muted">Total Price</h4>
         </div>
         <div class="col-3 d-flex align-items-center flex-wrap" style="border:0; border-bottom: 10px solid black; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">

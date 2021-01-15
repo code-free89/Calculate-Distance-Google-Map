@@ -1,5 +1,14 @@
 var directionsService = new google.maps.DirectionsService();
 var directionsDisplay = new google.maps.DirectionsRenderer();
+var union_price = 2.5;
+var saudi_union_price = 1.5;
+var border_price = 200;
+var trailer_price = 2.5;
+var reefer_price = 2.5;
+var seasonal_extra = 0;
+var seasonal_discount = 0;
+var vehicle_type = 0;
+var ppk_price = 2.5;
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
     var height = $(window).height() - 100;
@@ -28,11 +37,37 @@ $(document).ready(function () {
         //closeButton: true
         // autoShow: false
     });
+    initMap();
     $('.btn-vehicle').on('click', function() {
+        if($(this).hasClass('vehicle-trailer')) {
+            vehicle_type = 0;
+        } else {
+            vehicle_type = 1;
+        }
         $('.btn-vehicle').removeClass('btn-vehicle-selected');
         $(this).addClass('btn-vehicle-selected');
     });
-    initMap();
+    $('#admin-settings-modal .save').click(function() {
+        console.log('save');
+        union_price = $('.union-price').val();
+        saudi_union_price = $('.saudi-union-price').val();
+        border_price = $('.border-price').val();
+        trailer_price = $('.trailer-price').val();
+        reefer_price = $('.reefer-price').val();
+        seasonal_extra = $('.seasonal-extra').val();
+        seasonal_discount = $('.seasonal-discount').val();
+    });
+    
+    $('#admin-settings-modal .cancel').click(function() {
+        console.log('cancel');
+        $('.union-price').val(union_price);
+        $('.saudi-union-price').val(saudi_union_price);
+        $('.border-price').val(border_price);
+        $('.trailer-price').val(trailer_price);
+        $('.reefer-price').val(reefer_price);
+        $('.seasonal-extra').val(seasonal_extra);
+        $('.seasonal-discount').val(seasonal_discount);
+    });
 });
 
 function initMap() {
@@ -74,7 +109,7 @@ function initMap() {
             map.fitBounds(place.geometry.viewport);
         } else {
             map.setCenter(place.geometry.location);
-            map.setZoom(17);
+            map.setZoom(10);
         }
         
         marker_pickup.setPosition(place.geometry.location);
@@ -100,7 +135,7 @@ function initMap() {
             map.fitBounds(place.geometry.viewport);
         } else {
             map.setCenter(place.geometry.location);
-            map.setZoom(17);
+            map.setZoom(10);
         }
         
         marker_delivery.setPosition(place.geometry.location);
@@ -264,10 +299,9 @@ function CalculateDistanceforAllAlternativeRoutes() {
             var distance = 0;
             for (var j = 0; j < routes[i].legs.length; j++) {
                 distance = parseInt(routes[i].legs[j].distance.value) + parseInt(distance);
-                //for each 'leg'(route between two waypoints) we get the distance and add it to 
-                console.log(routes[i]);
-                console.log(routes[i].legs[j]);
+                //for each 'leg'(route between two waypoints) we get the distance and add it to
                 for(k = 0; k < routes[i].legs[j].steps.length; k ++) {
+                    console.log(routes[i].legs[j].steps[k].instructions);
                     if(routes[i].legs[j].steps[k].instructions.indexOf("Entering") >=0) {
                         numberOfCountries ++;
                     }
@@ -315,10 +349,13 @@ function calculate() {
 
 function calculatePrice(resultDistance, numberOfCountries) {
     var total_price = 0;
-    total_price += resultDistance * $('.union-price').val();
-    total_price += numberOfCountries * $('.border-price').val();
-    total_price += resultDistance * $('.trailer-price').val();
-    var bonus_price = total_price / 100 * ($('.seasonal-extra').val() - $('.seasonal-discount').val());
+    if($('#searchInput_pickup').val().indexOf("Saudi") >= 0) {ppk_price = saudi_union_price;}
+    else {ppk_price = union_price};
+    total_price += resultDistance * ppk_price;
+    total_price += numberOfCountries * border_price;
+    if(vehicle_type == 0) {total_price += resultDistance * trailer_price;}
+    else if(vehicle_type == 1) {total_price += resultDistance * reefer_price;}
+    var bonus_price = total_price / 100 * (seasonal_extra - seasonal_discount);
     total_price += bonus_price;
     $('.total-price').text(total_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "AED");
 }
