@@ -48,7 +48,6 @@ $(document).ready(function () {
         $(this).addClass('btn-vehicle-selected');
     });
     $('#admin-settings-modal .save').click(function() {
-        console.log('save');
         union_price = $('.union-price').val();
         saudi_union_price = $('.saudi-union-price').val();
         border_price = $('.border-price').val();
@@ -59,7 +58,6 @@ $(document).ready(function () {
     });
     
     $('#admin-settings-modal .cancel').click(function() {
-        console.log('cancel');
         $('.union-price').val(union_price);
         $('.saudi-union-price').val(saudi_union_price);
         $('.border-price').val(border_price);
@@ -301,7 +299,6 @@ function CalculateDistanceforAllAlternativeRoutes() {
                 distance = parseInt(routes[i].legs[j].distance.value) + parseInt(distance);
                 //for each 'leg'(route between two waypoints) we get the distance and add it to
                 for(k = 0; k < routes[i].legs[j].steps.length; k ++) {
-                    console.log(routes[i].legs[j].steps[k].instructions);
                     if(routes[i].legs[j].steps[k].instructions.indexOf("Entering") >=0) {
                         numberOfCountries ++;
                     }
@@ -352,10 +349,17 @@ function calculatePrice(resultDistance, numberOfCountries) {
     if($('#searchInput_pickup').val().indexOf("Saudi") >= 0) {ppk_price = saudi_union_price;}
     else {ppk_price = union_price};
     total_price += resultDistance * ppk_price;
-    total_price += numberOfCountries * border_price;
-    if(vehicle_type == 0) {total_price += resultDistance * trailer_price;}
-    else if(vehicle_type == 1) {total_price += resultDistance * reefer_price;}
+    console.log(total_price);
+    // total_price += numberOfCountries * border_price;
+    total_price += parseInt(border_price);
+    console.log(total_price);
+    // if(vehicle_type == 0) {total_price += resultDistance * trailer_price;}
+    // else if(vehicle_type == 1) {total_price += resultDistance * reefer_price;}
+    if(vehicle_type == 0) {total_price += parseInt(trailer_price);}
+    else if(vehicle_type == 1) {total_price += parseInt(reefer_price);}
+    console.log(total_price);
     var bonus_price = total_price / 100 * (seasonal_extra - seasonal_discount);
-    total_price += bonus_price;
+    total_price += parseInt(bonus_price);
+    console.log(total_price);
     $('.total-price').text(total_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "AED");
 }
