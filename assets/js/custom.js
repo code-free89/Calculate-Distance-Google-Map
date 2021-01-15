@@ -193,12 +193,10 @@ function geolocate() {
 
 function bindDataToForm_pickup(address,lat,lng){
     document.getElementById('searchInput_pickup').value = address;
-    calculate();
 }
 
 function bindDataToForm_delivery(address,lat,lng){
     document.getElementById('searchInput_delivery').value = address;
-    calculate();
 }
 
  function onSettings() {
