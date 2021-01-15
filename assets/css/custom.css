@@ -52,8 +52,13 @@
     font-size: 20px;
     font-weight: bold;
 }
+.btn-vehicle:focus{
+    background-color: rgba(0, 0, 255, 0.24);
+    color: rgba(0, 0, 255, 0.705);
+    box-shadow: 0 0 0 0rem rgba(19, 126, 255, 0.25);
+}
 
-.btn-vehicle:focus {
+.btn-vehicle-selected{
     background-color: rgba(0, 0, 255, 0.24);
     color: rgba(0, 0, 255, 0.705);
     box-shadow: 0 0 0 0rem rgba(19, 126, 255, 0.25);

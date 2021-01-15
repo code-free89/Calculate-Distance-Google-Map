@@ -28,7 +28,11 @@ $(document).ready(function () {
         //closeButton: true
         // autoShow: false
     });
-    initMap();   
+    $('.btn-vehicle').on('click', function() {
+        $('.btn-vehicle').removeClass('btn-vehicle-selected');
+        $(this).addClass('btn-vehicle-selected');
+    });
+    initMap();
 });
 
 function initMap() {
@@ -200,49 +204,48 @@ function bindDataToForm_delivery(address,lat,lng){
 }
 
  function onSettings() {
-    CalculatedRecommededDistance();
      $('#admin-settings-modal').modal('show');
  }
 
  function CalculatedRecommededDistance() {
     CalculateDistanceforAllAlternativeRoutes();
   
-    var origin = document.getElementById('searchInput_pickup').value;
-    var destination = document.getElementById('searchInput_delivery').value;
+    // var origin = document.getElementById('searchInput_pickup').value;
+    // var destination = document.getElementById('searchInput_delivery').value;
   
-    var geocoder = new google.maps.Geocoder();
-    var service = new google.maps.DistanceMatrixService();
+    // var geocoder = new google.maps.Geocoder();
+    // var service = new google.maps.DistanceMatrixService();
   
-    service.getDistanceMatrix({
-      origins: [origin],
-      destinations: [destination],
-      travelMode: 'DRIVING',
-      unitSystem: google.maps.UnitSystem.METRIC,
-      avoidHighways: false,
-      avoidTolls: false,
-      avoidFerries: false
+    // service.getDistanceMatrix({
+    //   origins: [origin],
+    //   destinations: [destination],
+    //   travelMode: 'DRIVING',
+    //   unitSystem: google.maps.UnitSystem.METRIC,
+    //   avoidHighways: false,
+    //   avoidTolls: false,
+    //   avoidFerries: false
   
-    }, function(response, status) {
-      var originList = response.originAddresses;
-      var destinationList = response.destinationAddresses;
-      var outputDiv = document.getElementById('searchInput_pickup');
-      outputDiv.text = '';
-      //Display distance recommended value
-      for (var i = 0; i < originList.length; i++) {
-        var results = response.rows[i].elements;
-        for (var j = 0; j < results.length; j++) {
-          outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
-            ': ' + results[j].distance.text + ' in ' +
-            results[j].duration.text + '<br>';
-        }
-      }
-    });
+    // }, function(response, status) {
+    //   var originList = response.originAddresses;
+    //   var destinationList = response.destinationAddresses;
+    //   var outputDiv = document.getElementById('searchInput_pickup');
+    //   outputDiv.text = '';
+    //   //Display distance recommended value
+    //   for (var i = 0; i < originList.length; i++) {
+    //     var results = response.rows[i].elements;
+    //     for (var j = 0; j < results.length; j++) {
+    //       outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
+    //         ': ' + results[j].distance.text + ' in ' +
+    //         results[j].duration.text + '<br>';
+    //     }
+    //   }
+    // });
 }
   
 function CalculateDistanceforAllAlternativeRoutes() {
     var directionsService = new google.maps.DirectionsService();
-    var start = document.getElementById('searchInput_pickup').text;
-    var end = document.getElementById('searchInput_delivery').text;
+    var start = $('#searchInput_pickup').val();
+    var end = $('#searchInput_delivery').val();
     var method = 'DRIVING';
     var request = {
       origin: start,
@@ -254,26 +257,35 @@ function CalculateDistanceforAllAlternativeRoutes() {
     };
   
     directionsService.route(request, function(response, status) {
-      var routes = response.routes;
-      var distances = [];
-      for (var i = 0; i < routes.length; i++) {
-  
-        var distance = 0;
-        for (j = 0; j < routes[i].legs.length; j++) {
-          distance = parseInt(routes[i].legs[j].distance.value) + parseInt(distance);
-          //for each 'leg'(route between two waypoints) we get the distance and add it to 
+        var numberOfCountries = 0;
+        var routes = response.routes;
+        var distances = [];
+        var isBorder;
+        for (var i = 0; i < routes.length; i++) {
+            var distance = 0;
+            for (var j = 0; j < routes[i].legs.length; j++) {
+                distance = parseInt(routes[i].legs[j].distance.value) + parseInt(distance);
+                //for each 'leg'(route between two waypoints) we get the distance and add it to 
+                console.log(routes[i]);
+                console.log(routes[i].legs[j]);
+                for(k = 0; k < routes[i].legs[j].steps.length; k ++) {
+                    if(routes[i].legs[j].steps[k].instructions.indexOf("Entering") >=0) {
+                        numberOfCountries ++;
+                    }
+                }
+            }
+            //Convert into kilometer
+            distances.push(distance / 1000);
         }
-        //Convert into kilometer
-        distances.push(distance / 1000);
-      }
-      //Get all the alternative distances
-      var maxDistance = distances.sort(function(a, b) {
-        return a - b;
-      });
-      //Display distance having highest value.
-      var outputDiv = document.getElementById('searchInput_pickup');
-      outputDiv.innerHTML = Math.round(maxDistance[routes.length - 1]) + " KM";
+        //Get all the alternative distances
+        var maxDistance = distances.sort(function(a, b) {
+            return a - b;
+        });
+        //Display distance having highest value.
     });
+    var resultDistance = Math.round(maxDistance[routes.length - 1]);
+    $('#max-distance').text(resultDistance.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "km");
+    var total_price = calculatePrice(resultDistance);
 }
 
 function drawPath(directionsService, directionsDisplay,start,end) {
@@ -298,4 +310,10 @@ function calculate() {
     var end = $('#searchInput_delivery').val();
     directionsDisplay.setMap(map);
     drawPath(directionsService, directionsDisplay, start, end);
+
+    CalculatedRecommededDistance();
+}
+
+function calculatePrice(resultDistance) {
+    
 }
