@@ -1,3 +1,5 @@
+var directionsService = new google.maps.DirectionsService();
+var directionsDisplay = new google.maps.DirectionsRenderer();
 $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
     var height = $(window).height() - 100;
@@ -35,21 +37,29 @@ function initMap() {
       zoom: 8,
     });
     var latlng = new google.maps.LatLng(28.5355161,77.39102649999995);
-    var marker = new google.maps.Marker({
+    var marker_pickup = new google.maps.Marker({
         map: map,
         position: latlng,
         draggable: true,
         anchorPoint: new google.maps.Point(0, -29)
     });
     var place_pickup = document.getElementById('searchInput_pickup');
+    var marker_delivery = new google.maps.Marker({
+        map: map,
+        position: latlng,
+        draggable: true,
+        anchorPoint: new google.maps.Point(0, -29)
+    });
+    var place_delivery = document.getElementById('searchInput_delivery');
     var geocoder = new google.maps.Geocoder();
-    var autocomplete = new google.maps.places.Autocomplete(place_pickup);
-    autocomplete.bindTo('bounds', map);
-    var infowindow = new google.maps.InfoWindow();
-    autocomplete.addListener('place_changed', function() {
-        infowindow.close();
-        marker.setVisible(false);
-        var place = autocomplete.getPlace();
+    var autocomplete_pickup = new google.maps.places.Autocomplete(place_pickup);
+    var autocomplete_delivery = new google.maps.places.Autocomplete(place_delivery);
+    autocomplete_pickup.bindTo('bounds', map);
+    var infowindow_pickup = new google.maps.InfoWindow();
+    autocomplete_pickup.addListener('place_changed', function() {
+        infowindow_pickup.close();
+        marker_pickup.setVisible(false);
+        var place = autocomplete_pickup.getPlace();
         if (!place.geometry) {
             window.alert("Autocomplete's returned place contains no geometry");
             return;
@@ -63,25 +73,62 @@ function initMap() {
             map.setZoom(17);
         }
         
-        marker.setPosition(place.geometry.location);
-        marker.setVisible(true);          
+        marker_pickup.setPosition(place.geometry.location);
+        marker_pickup.setVisible(true);          
     
-        bindDataToForm(place.formatted_address,place.geometry.location.lat(),place.geometry.location.lng());
-        infowindow.setContent(place.formatted_address);
-        infowindow.open(map, marker);
-      });
-      // this function will work on marker move event into map 
-      google.maps.event.addListener(marker, 'dragend', function() {
-          geocoder.geocode({'latLng': marker.getPosition()}, function(results, status) {
-          if (status == google.maps.GeocoderStatus.OK) {
+        bindDataToForm_pickup(place.formatted_address,place.geometry.location.lat(),place.geometry.location.lng());
+        infowindow_pickup.setContent(place.formatted_address);
+        infowindow_pickup.open(map, marker_pickup);
+    });
+    autocomplete_delivery.bindTo('bounds', map);
+    var infowindow_delivery = new google.maps.InfoWindow();
+    autocomplete_delivery.addListener('place_changed', function() {
+        infowindow_delivery.close();
+        marker_delivery.setVisible(false);
+        var place = autocomplete_delivery.getPlace();
+        if (!place.geometry) {
+            window.alert("Autocomplete's returned place contains no geometry");
+            return;
+        }
+
+        // If the place has a geometry, then present it on a map.
+        if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+        } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);
+        }
+        
+        marker_delivery.setPosition(place.geometry.location);
+        marker_delivery.setVisible(true);          
+    
+        bindDataToForm_delivery(place.formatted_address,place.geometry.location.lat(),place.geometry.location.lng());
+        infowindow_delivery.setContent(place.formatted_address);
+        infowindow_delivery.open(map, marker_delivery);
+    });
+    // this function will work on marker move event into map 
+    google.maps.event.addListener(marker_pickup, 'dragend', function() {
+        geocoder.geocode({'latLng': marker_pickup.getPosition()}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
             if (results[0]) {        
-                bindDataToForm(results[0].formatted_address,marker.getPosition().lat(),marker.getPosition().lng());
-                infowindow.setContent(results[0].formatted_address);
-                infowindow.open(map, marker);
+                bindDataToForm_pickup(results[0].formatted_address,marker_pickup.getPosition().lat(),marker_pickup.getPosition().lng());
+                infowindow_pickup.setContent(results[0].formatted_address);
+                infowindow_pickup.open(map, marker_pickup);
             }
-          }
-          });
-      });
+        }
+        });
+    });
+    google.maps.event.addListener(marker_delivery, 'dragend', function() {
+        geocoder.geocode({'latLng': marker_delivery.getPosition()}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            if (results[0]) {        
+                bindDataToForm_delivery(results[0].formatted_address,marker_delivery.getPosition().lat(),marker_delivery.getPosition().lng());
+                infowindow_delivery.setContent(results[0].formatted_address);
+                infowindow_delivery.open(map, marker_delivery);
+            }
+        }
+        });
+    });
 }
 
 var placeSearch, autocomplete;
@@ -144,12 +191,113 @@ function geolocate() {
   }
 }
 
-function bindDataToForm(address,lat,lng){
+function bindDataToForm_pickup(address,lat,lng){
     document.getElementById('searchInput_pickup').value = address;
-    // document.getElementById('lat').value = lat;
-    // document.getElementById('lng').value = lng;
- }
+    calculate();
+}
+
+function bindDataToForm_delivery(address,lat,lng){
+    document.getElementById('searchInput_delivery').value = address;
+    calculate();
+}
 
  function onSettings() {
+    CalculatedRecommededDistance();
      $('#admin-settings-modal').modal('show');
  }
+
+ function CalculatedRecommededDistance() {
+    CalculateDistanceforAllAlternativeRoutes();
+  
+    var origin = document.getElementById('searchInput_pickup').value;
+    var destination = document.getElementById('searchInput_delivery').value;
+  
+    var geocoder = new google.maps.Geocoder();
+    var service = new google.maps.DistanceMatrixService();
+  
+    service.getDistanceMatrix({
+      origins: [origin],
+      destinations: [destination],
+      travelMode: 'DRIVING',
+      unitSystem: google.maps.UnitSystem.METRIC,
+      avoidHighways: false,
+      avoidTolls: false,
+      avoidFerries: false
+  
+    }, function(response, status) {
+      var originList = response.originAddresses;
+      var destinationList = response.destinationAddresses;
+      var outputDiv = document.getElementById('searchInput_pickup');
+      outputDiv.text = '';
+      //Display distance recommended value
+      for (var i = 0; i < originList.length; i++) {
+        var results = response.rows[i].elements;
+        for (var j = 0; j < results.length; j++) {
+          outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
+            ': ' + results[j].distance.text + ' in ' +
+            results[j].duration.text + '<br>';
+        }
+      }
+    });
+}
+  
+function CalculateDistanceforAllAlternativeRoutes() {
+    var directionsService = new google.maps.DirectionsService();
+    var start = document.getElementById('searchInput_pickup').text;
+    var end = document.getElementById('searchInput_delivery').text;
+    var method = 'DRIVING';
+    var request = {
+      origin: start,
+      destination: end,
+      travelMode: google.maps.DirectionsTravelMode[method],
+      provideRouteAlternatives: true,
+      unitSystem: google.maps.UnitSystem.METRIC,
+      optimizeWaypoints: true
+    };
+  
+    directionsService.route(request, function(response, status) {
+      var routes = response.routes;
+      var distances = [];
+      for (var i = 0; i < routes.length; i++) {
+  
+        var distance = 0;
+        for (j = 0; j < routes[i].legs.length; j++) {
+          distance = parseInt(routes[i].legs[j].distance.value) + parseInt(distance);
+          //for each 'leg'(route between two waypoints) we get the distance and add it to 
+        }
+        //Convert into kilometer
+        distances.push(distance / 1000);
+      }
+      //Get all the alternative distances
+      var maxDistance = distances.sort(function(a, b) {
+        return a - b;
+      });
+      //Display distance having highest value.
+      var outputDiv = document.getElementById('searchInput_pickup');
+      outputDiv.innerHTML = Math.round(maxDistance[routes.length - 1]) + " KM";
+    });
+}
+
+function drawPath(directionsService, directionsDisplay,start,end) {
+    var waypoints;
+    directionsService.route({
+        origin: start,
+        destination: end,
+        waypoints: waypoints,
+        optimizeWaypoints: true,
+        travelMode: 'DRIVING'
+    }, function(response, status) {
+        if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+        } else {
+            window.alert('Problem in showing direction due to ' + status);
+        }
+    });
+}
+
+function calculate() {
+    var start = $('#searchInput_pickup').val();
+    var end = $('#searchInput_delivery').val();
+    directionsDisplay.setMap(map);
+    drawPath(directionsService, directionsDisplay, start, end);
+}
