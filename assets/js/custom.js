@@ -255,12 +255,11 @@ function CalculateDistanceforAllAlternativeRoutes() {
       unitSystem: google.maps.UnitSystem.METRIC,
       optimizeWaypoints: true
     };
-  
+    var routes;
     directionsService.route(request, function(response, status) {
-        var numberOfCountries = 0;
         var routes = response.routes;
+        var numberOfCountries = 0;
         var distances = [];
-        var isBorder;
         for (var i = 0; i < routes.length; i++) {
             var distance = 0;
             for (var j = 0; j < routes[i].legs.length; j++) {
@@ -282,10 +281,10 @@ function CalculateDistanceforAllAlternativeRoutes() {
             return a - b;
         });
         //Display distance having highest value.
+        var resultDistance = Math.round(maxDistance[routes.length - 1]);
+        $('#max-distance').text(resultDistance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "km");
+        calculatePrice(resultDistance, numberOfCountries);
     });
-    var resultDistance = Math.round(maxDistance[routes.length - 1]);
-    $('#max-distance').text(resultDistance.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "km");
-    var total_price = calculatePrice(resultDistance);
 }
 
 function drawPath(directionsService, directionsDisplay,start,end) {
@@ -314,6 +313,12 @@ function calculate() {
     CalculatedRecommededDistance();
 }
 
-function calculatePrice(resultDistance) {
-    
+function calculatePrice(resultDistance, numberOfCountries) {
+    var total_price = 0;
+    total_price += resultDistance * $('.union-price').val();
+    total_price += numberOfCountries * $('.border-price').val();
+    total_price += resultDistance * $('.trailer-price').val();
+    var bonus_price = total_price / 100 * ($('.seasonal-extra').val() - $('.seasonal-discount').val());
+    total_price += bonus_price;
+    $('.total-price').text(total_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "AED");
 }
